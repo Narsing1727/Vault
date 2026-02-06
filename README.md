@@ -1,4 +1,4 @@
-                                                                                  🧾** Deterministic Financial Ledger System**
+🧾** Deterministic Financial Ledger System**
 
 A research-oriented, deterministic financial ledger system designed to model auditable, verifiable, and invariant-safe financial transactions.
 The project focuses on correctness, traceability, and system design, rather than UI-heavy features.
@@ -73,12 +73,12 @@ All transactions remain balanced
 Hash integrity invariant
 Ledger chain is cryptographically valid
 
-                                                                                                          🧠 Transaction Lifecycle
-                                                                                                                   INITIATED
-                                                                                                                      ↓
-                                                                                                                   PENDING
-                                                                                                                      ↓
-                                                                                                              COMPLETED  or  FAILED
+🧠 Transaction Lifecycle
+INITIATED
+↓
+PENDING
+↓
+COMPLETED  or  FAILED
 
 
 Internal transfers are first created as PENDING
