@@ -1,241 +1,107 @@
-DETERMINISTIC FINANCIAL LEDGER SYSTEM
-===================================
+🧾 DETERMINISTIC FINANCIAL LEDGER SYSTEM
 
-A research-oriented, deterministic financial ledger system designed to model
-auditable, verifiable, and invariant-safe financial transactions.
+A research-oriented, deterministic financial ledger system designed to build auditable, verifiable, and invariant-safe financial transactions.  
+The project prioritizes correctness, traceability, and backend system design over UI-heavy features.
 
-The project focuses on correctness, traceability, and system design,
-rather than UI-heavy features.
+📌 MOTIVATION
 
+Modern financial systems require strong auditability, deterministic state transitions, protection against silent data corruption, and a verifiable transaction history.  
+This project explores how double-entry accounting, hash-chained ledgers, and formal invariants can be implemented in a practical backend system.
 
-MOTIVATION
-----------
+🏗️ HIGH-LEVEL ARCHITECTURE
 
-Modern financial systems require:
+Client applications (dashboard or API consumers) interact with a Node.js and Express-based API layer.  
+Requests are processed by a business logic layer responsible for transaction validation and invariant enforcement.  
+Validated transactions are stored in an append-only PostgreSQL ledger.  
+A dedicated verification and audit layer continuously validates ledger integrity using hash chains and invariant checks.
 
-- Strong auditability
-- Deterministic state transitions
-- Protection against silent data corruption
-- Verifiable transaction history
+🔑 CORE CONCEPTS
 
-This project explores how double-entry accounting, hash-chained ledgers,
-and formal invariants can be implemented in a practical backend system.
+1️⃣ DOUBLE-ENTRY ACCOUNTING  
+Every transaction is recorded using one debit entry and one credit entry.  
+This guarantees that the sum of all amounts within a transaction is always zero, ensuring balance and correctness.
 
+2️⃣ APPEND-ONLY LEDGER  
+Historical ledger records are never updated or deleted.  
+All changes are recorded as new entries, providing a complete and tamper-evident audit trail.
 
-HIGH-LEVEL ARCHITECTURE
------------------------
+3️⃣ DETERMINISTIC AMOUNTS  
+All monetary values are stored as integers (paise).  
+This avoids floating-point precision errors and ensures deterministic and reproducible computations.
 
-Client (Dashboard / API Consumer)
-            |
-            v
-Node.js API Layer (Express)
-            |
-            v
-Business Logic Layer
-(Transaction Validation, Invariants)
-            |
-            v
-PostgreSQL Ledger (Append-Only)
-            |
-            v
-Verification & Audit Layer
-(Hash Chain + Invariant Checks)
+4️⃣ HASH-CHAINED LEDGER  
+Each ledger entry stores the hash of the previous entry along with its own hash.  
+This forms an immutable chain starting from a genesis entry.  
+Any modification to historical data breaks the chain and is immediately detectable.
 
+5️⃣ FORMAL INVARIANTS  
+The system enforces per-transaction balance invariants, global system-wide balance invariants, and cryptographic hash integrity invariants to guarantee correctness.
 
-CORE CONCEPTS
--------------
+🧠 TRANSACTION LIFECYCLE
 
-1. DOUBLE-ENTRY ACCOUNTING
+A transaction is first initiated, then marked as pending.  
+During finalization, all invariants and balance checks are validated.  
+The transaction is then either completed successfully or marked as failed.  
+All status updates occur atomically.
 
-Every transaction is recorded as:
+🔄 IMPLEMENTED WORKFLOWS
 
-- One debit
-- One credit
+✅ TOP-UP (FUNDING)  
+System-generated funds are credited to the OPS account.
 
-Invariant:
-Σ(amount) = 0   (per transaction)
+✅ INTERNAL TRANSFER  
+Funds are transferred between internal accounts such as OPS and RESERVE while maintaining strict balance invariants.
 
+❌ EXTERNAL TRANSFERS  
+External banking transfers are intentionally not implemented as they require regulatory and banking integrations.
 
-2. APPEND-ONLY LEDGER
+🔍 VERIFICATION AND AUDIT APIS
 
-- No updates to historical records
-- All changes are recorded as new entries
-- Enables a complete audit trail
+The system provides APIs to verify individual transaction invariants, global ledger balance, and the complete hash chain.  
+It also supports detection of corrupted or tampered ledger entries.  
+Verification checks can be executed on-demand or asynchronously.
 
+🧪 KEY APIS (SAMPLE)
 
-3. DETERMINISTIC AMOUNTS
+• /funds/top-up – Fund the OPS account  
+• /funds/internal-transfer – Create an internal transfer  
+• /ledger/complete/:txId – Finalize a pending transaction  
+• /verify/ledger – Verify the ledger hash chain  
+• /verify/invariant/:txId – Verify transaction-level invariant  
+• /dashboard/summary – View balances and activity summary  
 
-- All monetary values stored as integers (paise)
-- Prevents floating-point precision errors
-- Guarantees reproducibility
+🛠️ TECH STACK
 
+Backend technologies include Node.js and Express.  
+PostgreSQL is used as the primary database.  
+Security is handled using JWT-based authentication and bcrypt for password hashing.  
+Ledger correctness is enforced using double-entry accounting and hash chaining.  
+Data integrity relies on SQL transactions and row-level locking.
 
-4. HASH-CHAINED LEDGER
+📊 CURRENT FEATURES
 
-Each ledger entry stores:
+Deterministic financial ledger with strict correctness guarantees.  
+Audit-safe transaction history with full traceability.  
+Hash-based tamper detection.  
+Accurate balance tracking and historical views.  
+Research-oriented verification and audit APIs.
 
-- prev_hash
-- curr_hash
+🚧 WORK IN PROGRESS AND PLANNED ENHANCEMENTS
 
-Ledger structure:
+⏳ Redis-based balance caching  
+⏳ Asynchronous verification using job queues  
+⏳ Offline C++ verification engine for audits  
+⏳ Machine learning based anomaly detection  
+⏳ Write-Ahead Logging (WAL) abstraction  
 
-GENESIS → Entry_1 → Entry_2 → Entry_3 → ...
+🎓 ACADEMIC AND RESEARCH RELEVANCE
 
-Any modification breaks the chain and is detected.
+This project demonstrates real-world application of accounting theory, strong systems thinking for correctness and safety, deterministic backend design, and foundations for financial audit systems.  
+It is suitable for research internships, infrastructure and backend roles, and fintech system design discussions.
 
+👤 AUTHOR
 
-5. FORMAL INVARIANTS
+Narsing Sharma  
 
-The system enforces:
 
-Per-transaction invariant:
-Σ(amount by tx_id) = 0
-
-Global invariant:
-All transactions remain balanced
-
-Hash integrity invariant:
-Ledger hash chain is cryptographically valid
-
-
-TRANSACTION LIFECYCLE
----------------------
-
-INITIATED
-    |
-    v
-PENDING
-    |
-    v
-COMPLETED   or   FAILED
-
-- Internal transfers are created as PENDING
-- Finalization checks balance and invariants
-- Status update is atomic
-
-
-IMPLEMENTED WORKFLOWS
----------------------
-
-TOP-UP (FUNDING)
-
-SYSTEM
-  |
-  v
-OPS
-
-
-INTERNAL TRANSFER
-
-OPS  <------>  RESERVE
-
-
-EXTERNAL TRANSFERS
-
-NOT IMPLEMENTED
-(Requires banking rails & regulatory integration)
-
-
-VERIFICATION & AUDIT APIS
-------------------------
-
-Supported checks:
-
-- Per-transaction invariant verification
-- Global invariant verification
-- Full ledger hash-chain verification
-- Detection of corrupted or tampered entries
-
-Checks can be run on-demand or asynchronously.
-
-
-KEY APIS (SAMPLE)
------------------
-
-/funds/top-up
-    Fund OPS account
-
-/funds/internal-transfer
-    Create internal transfer
-
-/ledger/complete/:txId
-    Finalize pending transaction
-
-/verify/ledger
-    Verify hash chain
-
-/verify/invariant/:txId
-    Verify transaction invariant
-
-/dashboard/summary
-    Balance and activity summary
-
-
-TECH STACK
-----------
-
-Backend:
-- Node.js
-- Express
-
-Database:
-- PostgreSQL
-
-Security:
-- JWT Authentication
-- bcrypt
-
-Ledger Design:
-- Double-entry accounting
-- Hash chaining
-
-Data Integrity:
-- SQL transactions
-- Row-level locking
-
-
-CURRENT FEATURES
-----------------
-
-- Deterministic financial ledger
-- Audit-safe transaction history
-- Hash-based tamper detection
-- Balance tracking and history
-- Research-oriented verification APIs
-
-
-WORK IN PROGRESS / PLANNED ENHANCEMENTS
---------------------------------------
-
-- Redis-based balance caching
-- Async verification via job queues
-- C++ verification engine (offline audit)
-- ML-based anomaly detection (post-hoc analysis)
-- Write-Ahead Logging (WAL) abstraction
-
-
-ACADEMIC & RESEARCH RELEVANCE
------------------------------
-
-This project demonstrates:
-
-- Practical application of accounting theory
-- Systems thinking for correctness and safety
-- Deterministic backend design
-- Foundations for financial audit systems
-
-Suitable for:
-
-- Research internships
-- Infrastructure / backend roles
-- Fintech system-design discussions
-
-
-AUTHOR
-------
-
-Narsing Sharma
-
-
-Built as part of independent systems research
-and backend engineering exploration.
+Built as part of independent systems research and backend engineering exploration.
